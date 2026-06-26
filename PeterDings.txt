@@ -1,0 +1,28 @@
+**Omni Generation Config**
+Engine Mode: Gemini Omni / Omni Flash (High Fidelity)
+Aspect Ratio: 16:9 Landscape
+Audio Generation: Enabled (Native Single-Pass)
+Global Directives: No background morphing, locked environmental architecture, zero depth flickering, accurate fluid dynamics.
+
+**Selected Archetype:** Cyberpunk Neo-Noir style with high-contrast chiaroscuro lighting (Optimized for Gemini Omni)
+**Asset to Register:** @ABlackManTheSizeOfAH (Character asset: 6'4 ft tall, 100kg weight, speaks with a Ugandan accent, is a governmaent agent, action hero for Uganda like Jack Baueur.)
+
+**Shot 1: The Establishing Shot**
+Prompt:
+Text-to-video scene generation. Cyberpunk Neo-Noir style with high-contrast chiaroscuro lighting. Medium tracking shot (thats where the camera is). The camera executes a slow pan-right, smoothly tracking past flickering neon alley signs. @ABlackManTheSizeOfAH is leaning against a dark brick wall. Volumetric rainwater realistically runs down his leather coat and pools on his shoulders. He holds a sharp, triangular neon-green data chip flat in his open palm. The wet asphalt pavement accurately reflects flashing pink and blue advertising billboards from above. Realistic physics governing actions as ambient detail behaves naturally. Maintain strict environmental structural integrity; no background morphing or depth shifting.
+Audio Layer: Heavy, immersive ambient downpour sound with muffled, echoing city traffic in the distance.
+
+**Shot 2: The Detail / Tension Shot**
+Prompt:
+Text-to-video scene generation. Cyberpunk Neo-Noir style with high-contrast chiaroscuro lighting. Extreme close-up shot (thats where the camera is). The camera executes a slow, smooth, perfectly linear push-in along a locked depth axis. Hyper-detailed focus on @ABlackManTheSizeOfAH's metallic cybernetic index finger as it makes physical contact with the ports of the glowing green data chip interface. Tiny, vivid electrical sparks crackle realistically across the ports upon connection. Simultaneously, his cybernetic eye iris dilates and pulses rhythmically with micro-light data flow. Realistic physics governing actions as ambient detail behaves naturally. Maintain strict environmental structural integrity; no background morphing or depth shifting.
+Audio Layer: Sharp, electric static crackle and low-frequency cybernetic data hum synchronized perfectly with the eye pulse and sparks.
+
+**Shot 3: The Action / Resolution Shot**
+Prompt:
+Text-to-video scene generation. Cyberpunk Neo-Noir style with high-contrast chiaroscuro lighting. High-angle tracking shot (thats where the camera is). The camera executes a slow tilt-down, locking focus from a high perspective. @ABlackManTheSizeOfAH looks upward toward the massive, overwhelming skyscraper canopy of the neon-lit city. Sleek hover vehicles cleanly streak across the smoky, dark night sky. Rainwater drips heavily and realistically from his trench coat hem. Realistic physics governing actions as ambient detail behaves naturally. Maintain strict environmental structural integrity; no background morphing or depth shifting.
+Dialogue Input: "Hello everyone, Im Peter Dings and thank you for tunning in. If you think AI is coming in the near future, then you are wrong! It is already here, and if you dont adopt it you will not be able to compete. Lets watch this video"
+Audio Layer: Synthesize a gravelly, deep, gritty male voiceover pronouncing the dialogue text clearly with zero subtitles on screen. Mix the dialogue natively over the ongoing heavy rain ambiance and a low-frequency passing hover-engine drone.
+
+**Multi-Turn Refinement Protocol**
+To adjust lighting: "Omni, deepen the shadows on the brick wall in Shot 1 to make the chiaroscuro effect more drastic."
+To tune physics: "Increase the rate of the rainwater dripping from his trench coat in Shot 3."
