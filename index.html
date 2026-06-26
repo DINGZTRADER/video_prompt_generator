@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Veo 3 - Cinematic Prompt Studio</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0b0e;
+      --bg-secondary: #12141c;
+      --bg-tertiary: #1a1d29;
+      
+      --glass-bg: rgba(18, 20, 28, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --glass-border-hover: rgba(0, 240, 255, 0.2);
+      
+      --text-primary: #f5f6f9;
+      --text-secondary: #8f96a3;
+      --text-muted: #525866;
+      
+      --accent-cyan: #00f0ff;
+      --accent-purple: #bf5af2;
+      --accent-emerald: #30d158;
+      --accent-orange: #ff9f0a;
+      --accent-rose: #ff453a;
+      
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'Courier New', Courier, monospace;
+      
+      --shadow-neon-cyan: 0 0 15px rgba(0, 240, 255, 0.15);
+      --shadow-neon-purple: 0 0 15px rgba(191, 90, 242, 0.15);
+      
+      --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-medium: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(191, 90, 242, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 45%),
+        linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand h1 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand span {
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--accent-cyan);
+      text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+      font-family: var(--font-mono);
+    }
+
+    .hud-status {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    .status-dot.pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px var(--accent-emerald); }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    main {
+      max-width: 1440px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      margin-bottom: 2rem;
+    }
+
+    .panel:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 0.75rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .archetypes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .archetype-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: left;
+      color: var(--text-primary);
+    }
+
+    .archetype-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .archetype-card.active {
+      background: rgba(0, 240, 255, 0.05);
+      border-color: var(--accent-cyan);
+      box-shadow: var(--shadow-neon-cyan);
+    }
+
+    .archetype-title {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .archetype-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .shots-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .shot-card {
+      border-left: 3px solid var(--text-muted);
+      padding-left: 1.25rem;
+      transition: all var(--transition-medium);
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .shot-card.active-cyan { border-left-color: var(--accent-cyan); }
+    .shot-card.active-purple { border-left-color: var(--accent-purple); }
+    .shot-card.active-emerald { border-left-color: var(--accent-emerald); }
+
+    .shot-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .shot-number {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .shot-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .flex-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input {
+      accent-color: var(--accent-cyan);
+    }
+
+    .validator-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .validator-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px solid var(--glass-border);
+      font-size: 0.85rem;
+      transition: all var(--transition-fast);
+    }
+
+    .validator-item.pass {
+      border-color: rgba(48, 209, 88, 0.15);
+      background: rgba(48, 209, 88, 0.02);
+    }
+
+    .validator-item.fail {
+      border-color: rgba(255, 69, 58, 0.15);
+      background: rgba(255, 69, 58, 0.02);
+    }
+
+    .validator-icon {
+      margin-top: 2px;
+      font-weight: bold;
+    }
+
+    .validator-item.pass .validator-icon { color: var(--accent-emerald); }
+    .validator-item.fail .validator-icon { color: var(--accent-rose); }
+
+    .validator-text h4 {
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+      font-size: 0.85rem;
+    }
+
+    .validator-text p {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .output-box {
+      background: #050608;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      max-height: 500px;
+      overflow-y: auto;
+      border-left: 2px solid var(--accent-cyan);
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all var(--transition-fast);
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary {
+      background: var(--accent-cyan);
+      color: #000;
+      border: none;
+      font-weight: 600;
+      box-shadow: var(--shadow-neon-cyan);
+    }
+
+    .btn-primary:hover {
+      background: #00d8e6;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    }
+
+    .right-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: sticky;
+      top: 5.5rem;
+      height: fit-content;
+    }
+
+    .camera-visualization {
+      width: 100px;
+      height: 50px;
+      border: 1px dashed var(--text-muted);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      position: relative;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+      font-family: var(--font-mono);
+      padding: 4px;
+      text-align: center;
+    }
+
+    .camera-visualization::before {
+      content: '';
+      position: absolute;
+      background: var(--accent-cyan);
+    }
+
+    .cam-pan-left::before {
+      width: 4px;
+      height: 100%;
+      left: 0;
+      animation: move-left 2s infinite linear;
+    }
+    .cam-pan-right::before {
+      width: 4px;
+      height: 100%;
+      right: 0;
+      animation: move-right 2s infinite linear;
+    }
+    .cam-tilt-up::before {
+      height: 4px;
+      width: 100%;
+      top: 0;
+      animation: move-up 2s infinite linear;
+    }
+    .cam-tilt-down::before {
+      height: 4px;
+      width: 100%;
+      bottom: 0;
+      animation: move-down 2s infinite linear;
+    }
+    .cam-push-in::before {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--accent-cyan);
+      border-radius: 50%;
+      animation: zoom-in 2s infinite ease-in-out;
+      top: calc(50% - 10px);
+      left: calc(50% - 10px);
+    }
+
+    @keyframes move-left {
+      0% { transform: translateX(100px); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(0); opacity: 0; }
+    }
+    @keyframes move-right {
+      0% { transform: translateX(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateX(100px); opacity: 0; }
+    }
+    @keyframes move-up {
+      0% { transform: translateY(50px); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(0); opacity: 0; }
+    }
+    @keyframes move-down {
+      0% { transform: translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(50px); opacity: 0; }
+    }
+    @keyframes zoom-in {
+      0% { transform: scale(0.2); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    .custom-preset-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+    .custom-preset-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+    .delete-btn {
+      background: transparent;
+      border: none;
+      color: var(--accent-rose);
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background var(--transition-fast);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .delete-btn:hover {
+      background: rgba(255, 69, 58, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <h1>Veo Cinematic Director</h1>
+        <span>V3.0-LIVE</span>
+      </div>
+      <div class="hud-status">
+        <div class="status-item">
+          <div class="status-dot pulse"></div>
+          <span>DIRECTORIAL PIPELINE: ENGAGED</span>
+        </div>
+        <div class="status-item">
+          <span>MODEL: GOOGLE VEO 3 ENGINE</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+      <!-- Preset Panel -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">⚡ Creative Presets</h2>
+          <span style="font-size: 0.75rem; color: var(--accent-cyan);">VEO ARCHETYPES</span>
+        </div>
+        <h3 class="form-label" style="margin-bottom: 0.75rem;">Standard Archetypes</h3>
+        <div class="archetypes-grid" id="presets-grid">
+          <!-- Dynamically inserted -->
+        </div>
+        
+        <div class="preset-save-container" style="margin-top: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+          <h3 class="form-label" style="margin-bottom: 0.75rem;">Saved Blueprints</h3>
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+            <input type="text" id="new-preset-name" class="form-input" placeholder="Blueprint name (e.g., Cyber Desert)..." style="flex: 1;">
+            <button class="btn btn-primary" id="save-preset-btn">Save Blueprint</button>
+          </div>
+          <div class="archetypes-grid" id="custom-presets-grid">
+            <!-- Custom presets dynamically inserted -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Config Setup -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">⚙️ Global Config</h2>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Subject description</label>
+          <input type="text" id="global-subject" class="form-input" placeholder="Describe your subject...">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Asset Token</label>
+            <input type="text" id="global-asset-name" class="form-input" disabled style="color: var(--accent-cyan); background: rgba(0, 240, 255, 0.03); font-weight: bold;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Asset Ingredient Description</label>
+            <input type="text" id="global-asset-desc" class="form-input" placeholder="Define asset details for continuity...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Selected Creative Genre / Style Archetype</label>
+          <input type="text" id="global-genre" class="form-input">
+        </div>
+
+        <div class="character-save-container" style="margin-top: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+          <h3 class="form-label" style="margin-bottom: 0.75rem;">Character Library</h3>
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+            <input type="text" id="new-character-name" class="form-input" placeholder="Character profile name (e.g., Space Outlaw)..." style="flex: 1;">
+            <button class="btn btn-primary" id="save-character-btn">Save Character</button>
+          </div>
+          <div class="archetypes-grid" id="characters-grid">
+            <!-- Characters dynamically inserted -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Shot Customizations -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">🎬 3-Shot Director Board</h2>
+        </div>
+        
+        <div class="shots-container" id="shots-list">
+          <!-- Dynamically inserted -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="right-sidebar">
+      <!-- Validator Auditor -->
+      <section class="panel" style="border-left: 3px solid var(--accent-purple); margin-bottom: 0;">
+        <div class="panel-header">
+          <h2 class="panel-title" style="color: var(--accent-purple);">🔍 Veo Constraint Auditor</h2>
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">REALTIME CONTROLS</span>
+        </div>
+
+        <div class="validator-list" id="validator-list">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- Compiled Output -->
+      <section class="panel" style="border-left: 3px solid var(--accent-cyan);">
+        <div class="panel-header">
+          <h2 class="panel-title" style="color: var(--accent-cyan);">📋 Compiled Video Blueprint</h2>
+          <button class="btn" id="copy-btn">Copy Script</button>
+        </div>
+
+        <div class="output-box" id="output-box">
+          <!-- Compiled Output -->
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const ARCHETYPES = [
+      {
+        id: 'scifi-ronin',
+        name: 'Sci-Fi Neo-Western',
+        genre: 'Sci-Fi Neo-Western / Low-Angle Hero Cinematic',
+        subject: 'A futuristic samurai explorer looking for water',
+        assetName: '@SamuraiExplorer',
+        assetDesc: 'traditional ronin silhouette, weathered carbon-fiber armor, a straw rônin hat with integrated glowing neon HUD visor, sheathed plasma katana',
+        shots: [
+          {
+            type: 'Wide tracking',
+            movement: 'slow, smooth push-in along the path',
+            description: 'In the center frame, @SamuraiExplorer walks slowly away from the lens toward a massive, rusted terraforming facility looming on the horizon. Harsh overhead midday sun casts sharp, pitch-black shadows directly beneath them. Wind whips dust and loose sand around their tattered textile cloak.',
+            physics: true,
+            dialogueEnabled: false,
+            character: '',
+            dialogue: '',
+            negativeFilter: true
+          },
+          {
+            type: 'Close-up',
+            movement: 'slow, subtle tilt-up matching subject height',
+            description: '@SamuraiExplorer stands motionless. The matte-black carbon fiber texture of their shoulder armor shows deep scratches and scuffs. The reflection on their neon blue HUD visor shows a flashing red water drop icon and scrolling geometric code. Soft, diffused ambient desert light glints off the visor\'s metallic rim.',
+            physics: false,
+            dialogueEnabled: false,
+            character: '',
+            dialogue: '',
+            negativeFilter: true
+          },
+          {
+            type: 'Extreme low-angle',
+            movement: 'slow, subtle tilt-up matching subject height',
+            description: '@SamuraiExplorer drops heavily to one knee in front of a cracked pipe. Their armor shifts and a plume of red dust kicks up upon impact. They extend their arm, and a small stream of clear, glowing blue water begins to trickle from the pipe into a metallic canteen.',
+            physics: true,
+            dialogueEnabled: true,
+            character: 'HUD System',
+            dialogue: 'Hydration resources detected. Warning: filtration required.',
+            negativeFilter: true
+          }
+        ]
+      },
+      {
+        id: 'cyberpunk-detective',
+        name: 'Cyberpunk Noir',
+        genre: 'Cyberpunk Neo-Noir / High-Contrast Chiaroscuro',
+        subject: 'A cybernetically enhanced detective examining a glowing chip',
+        assetName: '@CyberDetective',
+        assetDesc: 'tattered leather trench coat, cybernetic glowing eye implant, wet slicked-back hair, metallic fingers reflecting neon ambient light',
+        shots: [
+          {
+            type: 'Medium tracking',
+            movement: 'slow pan-right tracking past neon alley signs',
+            description: 'Under a heavy, torrential downpour, @CyberDetective leans against a brick wall. Water droplets run down the leather coat. He holds a triangular neon-green data chip in his palm. The wet asphalt reflects flashing pink and blue advertising billboards.',
+            physics: true,
+            dialogueEnabled: false,
+            character: '',
+            dialogue: '',
+            negativeFilter: true
+          },
+          {
+            type: 'Close-up',
+            movement: 'slow, smooth push-in along the path',
+            description: 'Extreme detail on @CyberDetective\'s metallic index finger connecting to the glowing chip interface. Tiny electrical sparks crackle across the connection ports. The cybernetic eye iris dilates and pulses with information flow.',
+            physics: true,
+            dialogueEnabled: false,
+            character: '',
+            dialogue: '',
+            negativeFilter: true
+          },
+          {
+            type: 'High-angle tracking',
+            movement: 'slow tilt-down tracking focus anchor',
+            description: '@CyberDetective looks up toward the skyscraper canopy of the city. Hover vehicles streak across the smoggy night sky. Rainwater drips heavily from his trench coat hem.',
+            physics: true,
+            dialogueEnabled: true,
+            character: 'Detective',
+            dialogue: 'This data goes all the way to the executive level.',
+            negativeFilter: true
+          }
+        ]
+      },
+      {
+        id: 'gemini-omni-cyberpunk',
+        name: 'Gemini Omni Cyberpunk',
+        genre: 'Cyberpunk Neo-Noir style with high-contrast chiaroscuro lighting (Optimized for Gemini Omni)',
+        subject: 'A cybernetically enhanced detective examining a glowing chip (Omni Pipeline)',
+        assetName: '@CyberDetective',
+        assetDesc: 'a man with wet slicked-back hair, a tattered black leather trench coat, and a glowing cyan cybernetic eye implant',
+        shots: [
+          {
+            type: 'Medium tracking',
+            movement: 'slow pan-right, smoothly tracking past flickering neon alley signs',
+            description: '@CyberDetective is leaning against a dark brick wall. Volumetric rainwater realistically runs down his leather coat and pools on his shoulders. He holds a sharp, triangular neon-green data chip flat in his open palm. The wet asphalt pavement accurately reflects flashing pink and blue advertising billboards from above.',
+            physics: true,
+            dialogueEnabled: false,
+            character: '',
+            dialogue: '',
+            negativeFilter: true,
+            audioLayer: 'Heavy, immersive ambient downpour sound with muffled, echoing city traffic in the distance.'
+          },
+          {
+            type: 'Extreme close-up',
+            movement: 'slow, smooth, perfectly linear push-in along a locked depth axis',
+            description: 'Hyper-detailed focus on @CyberDetective\'s metallic cybernetic index finger as it makes physical contact with the ports of the glowing green data chip interface. Tiny, vivid electrical sparks crackle realistically across the ports upon connection. Simultaneously, his cybernetic eye iris dilates and pulses rhythmically with micro-light data flow.',
+            physics: true,
+            dialogueEnabled: false,
+            character: '',
+            dialogue: '',
+            negativeFilter: true,
+            audioLayer: 'Sharp, electric static crackle and low-frequency cybernetic data hum synchronized perfectly with the eye pulse and sparks.'
+          },
+          {
+            type: 'High-angle tracking',
+            movement: 'slow tilt-down, locking focus from a high perspective',
+            description: '@CyberDetective looks upward toward the massive, overwhelming skyscraper canopy of the neon-lit city. Sleek hover vehicles cleanly streak across the smoky, dark night sky. Rainwater drips heavily and realistically from his trench coat hem.',
+            physics: true,
+            dialogueEnabled: true,
+            character: '@CyberDetective',
+            dialogue: 'This data goes all the way to the executive level.',
+            negativeFilter: true,
+            audioLayer: 'Synthesize a gravelly, deep, gritty male voiceover pronouncing the dialogue text clearly with zero subtitles on screen. Mix the dialogue natively over the ongoing heavy rain ambiance and a low-frequency passing hover-engine drone.'
+          }
+        ]
+      }
+    ];
+
+    // Current State
+    let currentSubject = ARCHETYPES[0].subject;
+    let currentAssetName = ARCHETYPES[0].assetName;
+    let currentAssetDesc = ARCHETYPES[0].assetDesc;
+    let currentGenre = ARCHETYPES[0].genre;
+    let currentShots = JSON.parse(JSON.stringify(ARCHETYPES[0].shots));
+
+    function init() {
+      loadState();
+      renderPresets();
+      updateFormFields();
+      renderShots();
+      compile();
+      setupEventListeners();
+      renderCustomPresets();
+      renderSavedCharacters();
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('veo_director_current_state');
+        if (saved) {
+          const state = JSON.parse(saved);
+          currentSubject = state.subject ?? currentSubject;
+          currentAssetName = state.assetName ?? currentAssetName;
+          currentAssetDesc = state.assetDesc ?? currentAssetDesc;
+          currentGenre = state.genre ?? currentGenre;
+          currentShots = state.shots ?? currentShots;
+        }
+      } catch (e) {
+        console.error('Error loading state:', e);
+      }
+    }
+
+    function saveState() {
+      try {
+        const state = {
+          subject: currentSubject,
+          assetName: currentAssetName,
+          assetDesc: currentAssetDesc,
+          genre: currentGenre,
+          shots: currentShots
+        };
+        localStorage.setItem('veo_director_current_state', JSON.stringify(state));
+      } catch (e) {
+        console.error('Error saving state:', e);
+      }
+    }
+
+    // Custom Presets
+    function getCustomPresets() {
+      try {
+        return JSON.parse(localStorage.getItem('veo_director_custom_presets') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveCustomPresets(presets) {
+      localStorage.setItem('veo_director_custom_presets', JSON.stringify(presets));
+      renderCustomPresets();
+    }
+
+    function renderCustomPresets() {
+      const container = document.getElementById('custom-presets-grid');
+      const presets = getCustomPresets();
+      if (presets.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1rem; border: 1px dashed var(--glass-border); border-radius: 8px;">No saved blueprints yet</div>`;
+        return;
+      }
+      container.innerHTML = presets.map((arch, idx) => `
+        <div class="custom-preset-card">
+          <div style="flex: 1; cursor: pointer;" class="custom-preset-load-trigger" data-index="${idx}">
+            <div class="archetype-title">${arch.name}</div>
+            <div class="archetype-desc">${arch.genre.split(' / ')[0]}</div>
+          </div>
+          <button class="delete-btn delete-preset-trigger" data-index="${idx}">&times;</button>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.custom-preset-load-trigger').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index);
+          const arch = presets[idx];
+          applyArchetype(arch);
+        });
+      });
+
+      container.querySelectorAll('.delete-preset-trigger').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(el.dataset.index);
+          const currentPresets = getCustomPresets();
+          currentPresets.splice(idx, 1);
+          saveCustomPresets(currentPresets);
+        });
+      });
+    }
+
+    // Custom Characters
+    function getCustomCharacters() {
+      try {
+        return JSON.parse(localStorage.getItem('veo_director_custom_characters') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveCustomCharacters(chars) {
+      localStorage.setItem('veo_director_custom_characters', JSON.stringify(chars));
+      renderSavedCharacters();
+    }
+
+    function renderSavedCharacters() {
+      const container = document.getElementById('characters-grid');
+      const chars = getCustomCharacters();
+      if (chars.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1rem; border: 1px dashed var(--glass-border); border-radius: 8px;">No saved characters yet</div>`;
+        return;
+      }
+      container.innerHTML = chars.map((char, idx) => `
+        <div class="custom-preset-card">
+          <div style="flex: 1; cursor: pointer;" class="custom-character-load-trigger" data-index="${idx}">
+            <div class="archetype-title" style="color: var(--accent-cyan); font-weight: bold;">${char.name}</div>
+            <div class="archetype-desc">${char.assetDesc.slice(0, 50)}${char.assetDesc.length > 50 ? '...' : ''}</div>
+          </div>
+          <button class="delete-btn delete-character-trigger" data-index="${idx}">&times;</button>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.custom-character-load-trigger').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.index);
+          const char = chars[idx];
+          currentAssetName = char.assetName;
+          currentAssetDesc = char.assetDesc;
+          updateFormFields();
+          compile();
+        });
+      });
+
+      container.querySelectorAll('.delete-character-trigger').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(el.dataset.index);
+          const currentChars = getCustomCharacters();
+          currentChars.splice(idx, 1);
+          saveCustomCharacters(currentChars);
+        });
+      });
+    }
+
+    function renderPresets() {
+      const container = document.getElementById('presets-grid');
+      container.innerHTML = ARCHETYPES.map(arch => `
+        <button class="archetype-card" data-id="${arch.id}">
+          <div class="archetype-title">${arch.name}</div>
+          <div class="archetype-desc">${arch.genre.split(' / ')[0]}</div>
+        </button>
+      `).join('');
+
+      container.querySelectorAll('.archetype-card').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const arch = ARCHETYPES.find(a => a.id === btn.dataset.id);
+          applyArchetype(arch);
+        });
+      });
+      updatePresetSelectionHighlight();
+    }
+
+    function updatePresetSelectionHighlight() {
+      document.querySelectorAll('.archetype-card').forEach(btn => {
+        const selectedId = ARCHETYPES.find(a => a.subject === currentSubject)?.id;
+        if (btn.dataset.id === selectedId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function applyArchetype(arch) {
+      currentSubject = arch.subject;
+      currentAssetName = arch.assetName;
+      currentAssetDesc = arch.assetDesc;
+      currentGenre = arch.genre;
+      currentShots = JSON.parse(JSON.stringify(arch.shots));
+      
+      updateFormFields();
+      renderShots();
+      compile();
+      updatePresetSelectionHighlight();
+    }
+
+    function updateFormFields() {
+      document.getElementById('global-subject').value = currentSubject;
+      document.getElementById('global-asset-name').value = currentAssetName;
+      document.getElementById('global-asset-desc').value = currentAssetDesc;
+      document.getElementById('global-genre').value = currentGenre;
+    }
+
+    function setupEventListeners() {
+      document.getElementById('global-subject').addEventListener('input', (e) => {
+        currentSubject = e.target.value;
+        const words = currentSubject.replace(/[^a-zA-Z0-9 ]/g, '').split(' ');
+        currentAssetName = '@' + words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('').slice(0, 20);
+        document.getElementById('global-asset-name').value = currentAssetName;
+        
+        // Propagate asset name updates to shots descriptions
+        compile();
+      });
+
+      document.getElementById('global-asset-desc').addEventListener('input', (e) => {
+        currentAssetDesc = e.target.value;
+        compile();
+      });
+
+      document.getElementById('global-genre').addEventListener('input', (e) => {
+        currentGenre = e.target.value;
+        compile();
+      });
+
+      document.getElementById('copy-btn').addEventListener('click', () => {
+        const text = document.getElementById('output-box').innerText;
+        navigator.clipboard.writeText(text);
+        const btn = document.getElementById('copy-btn');
+        btn.innerText = 'Copied!';
+        setTimeout(() => btn.innerText = 'Copy Script', 2000);
+      });
+
+      document.getElementById('save-preset-btn').addEventListener('click', () => {
+        const nameInput = document.getElementById('new-preset-name');
+        const name = nameInput.value.trim();
+        if (!name) return;
+
+        const newPreset = {
+          id: 'custom-' + Date.now(),
+          name: name,
+          genre: currentGenre,
+          subject: currentSubject,
+          assetName: currentAssetName,
+          assetDesc: currentAssetDesc,
+          shots: JSON.parse(JSON.stringify(currentShots))
+        };
+
+        const currentPresets = getCustomPresets();
+        currentPresets.push(newPreset);
+        saveCustomPresets(currentPresets);
+        nameInput.value = '';
+      });
+
+      document.getElementById('save-character-btn').addEventListener('click', () => {
+        const nameInput = document.getElementById('new-character-name');
+        const name = nameInput.value.trim();
+        if (!name) return;
+
+        const newChar = {
+          name: name,
+          assetName: currentAssetName,
+          assetDesc: currentAssetDesc
+        };
+
+        const currentChars = getCustomCharacters();
+        currentChars.push(newChar);
+        saveCustomCharacters(currentChars);
+        nameInput.value = '';
+      });
+    }
+
+    function renderShots() {
+      const container = document.getElementById('shots-list');
+      container.innerHTML = currentShots.map((shot, idx) => {
+        const borderClass = idx === 0 ? 'active-cyan' : idx === 1 ? 'active-purple' : 'active-emerald';
+        const colorStyle = idx === 0 ? 'var(--accent-cyan)' : idx === 1 ? 'var(--accent-purple)' : 'var(--accent-emerald)';
+        return `
+          <div class="shot-card ${borderClass}" data-index="${idx}">
+            <div class="shot-header-row">
+              <div class="shot-number" style="color: ${colorStyle}">
+                SHOT ${idx + 1}: ${idx === 0 ? 'ESTABLISHING' : idx === 1 ? 'DETAIL / TENSION' : 'ACTION / CLIMAX'}
+              </div>
+              <div class="camera-visualization" id="cam-vis-${idx}">
+                STATIC CAM
+              </div>
+            </div>
+
+            <div class="shot-controls">
+              <div class="form-group">
+                <label class="form-label">Camera Angle / Framing Anchor</label>
+                <select class="form-select shot-type-select">
+                  <option value="Wide tracking" ${shot.type === 'Wide tracking' ? 'selected' : ''}>Wide tracking</option>
+                  <option value="Medium tracking" ${shot.type === 'Medium tracking' ? 'selected' : ''}>Medium tracking</option>
+                  <option value="Close-up" ${shot.type === 'Close-up' ? 'selected' : ''}>Close-up</option>
+                  <option value="Extreme close-up" ${shot.type === 'Extreme close-up' ? 'selected' : ''}>Extreme close-up</option>
+                  <option value="Extreme low-angle" ${shot.type === 'Extreme low-angle' ? 'selected' : ''}>Extreme low-angle</option>
+                  <option value="High-angle tracking" ${shot.type === 'High-angle tracking' ? 'selected' : ''}>High-angle tracking</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Single-Axis Camera Movement</label>
+                <select class="form-select shot-movement-select">
+                  <option value="none" ${shot.movement === 'none' ? 'selected' : ''}>Static (No Movement)</option>
+                  <option value="slow, smooth push-in along the path" ${shot.movement === 'slow, smooth push-in along the path' ? 'selected' : ''}>Slow smooth push-in</option>
+                  <option value="slow, subtle tilt-up matching subject height" ${shot.movement === 'slow, subtle tilt-up matching subject height' ? 'selected' : ''}>Slow tilt-up</option>
+                  <option value="slow tilt-down tracking focus anchor" ${shot.movement === 'slow tilt-down tracking focus anchor' ? 'selected' : ''}>Slow tilt-down</option>
+                  <option value="slow pan-right tracking past neon alley signs" ${shot.movement === 'slow pan-right tracking past neon alley signs' ? 'selected' : ''}>Slow pan-right</option>
+                  <option value="slow tracking pan-left" ${shot.movement === 'slow tracking pan-left' ? 'selected' : ''}>Slow pan-left</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Shot Action / Environmental details</label>
+              <textarea class="form-textarea shot-desc-textarea" rows="3" placeholder="Describe environmental details...">${shot.description}</textarea>
+            </div>
+
+            <div class="flex-row">
+              <label class="checkbox-label">
+                <input type="checkbox" class="shot-physics-cb" ${shot.physics ? 'checked' : ''}>
+                Enable "Realistic Physics"
+              </label>
+
+              <label class="checkbox-label">
+                <input type="checkbox" class="shot-neg-cb" ${shot.negativeFilter ? 'checked' : ''}>
+                Append Negative Filter Bracket
+              </label>
+
+              <label class="checkbox-label">
+                <input type="checkbox" class="shot-dialog-enabled-cb" ${shot.dialogueEnabled ? 'checked' : ''}>
+                Inject Dialogue
+              </label>
+            </div>
+
+            <div class="dialog-fields-row" style="display: ${shot.dialogueEnabled ? 'grid' : 'none'}; grid-template-columns: 1fr 2fr; gap: 1rem; margin-top: 1rem;">
+              <div class="form-group">
+                <label class="form-label">Character Name</label>
+                <input type="text" class="form-input shot-char-input" value="${shot.character}" placeholder="e.g. Detective">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Spoken Dialogue Line</label>
+                <input type="text" class="form-input shot-dialog-input" value="${shot.dialogue}" placeholder="Enter dialogue line...">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+              <label class="form-label">Audio Layer / Sound Design (Multimodal)</label>
+              <input type="text" class="form-input shot-audio-input" value="${shot.audioLayer || ''}" placeholder="Describe ambient sounds, sound effects, voice synthesis directives...">
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Add event listeners to newly rendered items
+      container.querySelectorAll('.shot-card').forEach(card => {
+        const idx = parseInt(card.dataset.index);
+
+        card.querySelector('.shot-type-select').addEventListener('change', (e) => {
+          currentShots[idx].type = e.target.value;
+          compile();
+        });
+
+        card.querySelector('.shot-movement-select').addEventListener('change', (e) => {
+          currentShots[idx].movement = e.target.value;
+          updateVisualizer(idx, e.target.value);
+          compile();
+        });
+
+        card.querySelector('.shot-desc-textarea').addEventListener('input', (e) => {
+          currentShots[idx].description = e.target.value;
+          compile();
+        });
+
+        card.querySelector('.shot-physics-cb').addEventListener('change', (e) => {
+          currentShots[idx].physics = e.target.checked;
+          compile();
+        });
+
+        card.querySelector('.shot-neg-cb').addEventListener('change', (e) => {
+          currentShots[idx].negativeFilter = e.target.checked;
+          compile();
+        });
+
+        const dialogCB = card.querySelector('.shot-dialog-enabled-cb');
+        const dialogFields = card.querySelector('.dialog-fields-row');
+        dialogCB.addEventListener('change', (e) => {
+          currentShots[idx].dialogueEnabled = e.target.checked;
+          dialogFields.style.display = e.target.checked ? 'grid' : 'none';
+          compile();
+        });
+
+        card.querySelector('.shot-char-input').addEventListener('input', (e) => {
+          currentShots[idx].character = e.target.value;
+          compile();
+        });
+
+        card.querySelector('.shot-dialog-input').addEventListener('input', (e) => {
+          currentShots[idx].dialogue = e.target.value;
+          compile();
+        });
+
+        card.querySelector('.shot-audio-input').addEventListener('input', (e) => {
+          currentShots[idx].audioLayer = e.target.value;
+          compile();
+        });
+
+        // Initialize visualizer on render
+        updateVisualizer(idx, currentShots[idx].movement);
+      });
+    }
+
+    function updateVisualizer(idx, movement) {
+      const vis = document.getElementById(`cam-vis-${idx}`);
+      if (!vis) return;
+      
+      vis.className = 'camera-visualization';
+      if (movement.includes('push-in')) {
+        vis.classList.add('cam-push-in');
+        vis.innerText = 'ZOOM / IN';
+      } else if (movement.includes('pan-left')) {
+        vis.classList.add('cam-pan-left');
+        vis.innerText = 'PAN / L';
+      } else if (movement.includes('pan-right')) {
+        vis.classList.add('cam-pan-right');
+        vis.innerText = 'PAN / R';
+      } else if (movement.includes('tilt-up')) {
+        vis.classList.add('cam-tilt-up');
+        vis.innerText = 'TILT / UP';
+      } else if (movement.includes('tilt-down')) {
+        vis.classList.add('cam-tilt-down');
+        vis.innerText = 'TILT / DN';
+      } else {
+        vis.innerText = 'STATIC CAM';
+      }
+    }
+
+    function compile() {
+      let out = "";
+      const isOmni = currentGenre.includes("Omni");
+      
+      if (isOmni) {
+        out += `**Omni Generation Config**\n`;
+        out += `Engine Mode: Gemini Omni / Omni Flash (High Fidelity)\n`;
+        out += `Aspect Ratio: 16:9 Landscape\n`;
+        out += `Audio Generation: Enabled (Native Single-Pass)\n`;
+        out += `Global Directives: No background morphing, locked environmental architecture, zero depth flickering, accurate fluid dynamics.\n\n`;
+      }
+      
+      out += `**Selected Archetype:** ${currentGenre}\n`;
+      out += `**Asset to Register:** ${currentAssetName} (Character asset: ${currentAssetDesc})\n\n`;
+
+      currentShots.forEach((shot, idx) => {
+        const shotNum = idx + 1;
+        out += `**Shot ${shotNum}: The ${shotNum === 1 ? 'Establishing' : shotNum === 2 ? 'Detail / Tension' : 'Action / Resolution'} Shot**\n`;
+        
+        let promptText = "";
+        if (isOmni) {
+          promptText += `Text-to-video scene generation. ${currentGenre.split(' (')[0]}. `;
+        }
+        
+        const cameraAnchor = `${shot.type} shot (thats where the camera is).`;
+        const cameraMove = shot.movement && shot.movement !== 'none' 
+          ? ` The camera executes a ${shot.movement}.` 
+          : '';
+          
+        let desc = shot.description.replace(/@[A-Za-z0-9]+/g, currentAssetName);
+        const physicsText = shot.physics ? ' Realistic physics governing actions as ' : ' ';
+        
+        let dialogueLine = "";
+        let audioText = "";
+        
+        if (isOmni) {
+          if (shot.dialogueEnabled && shot.dialogue) {
+            dialogueLine = `\nDialogue Input: "${shot.dialogue}"`;
+          }
+          if (shot.audioLayer) {
+            audioText = `\nAudio Layer: ${shot.audioLayer}`;
+          }
+          let negFilterText = shot.negativeFilter ? ' Maintain strict environmental structural integrity; no background morphing or depth shifting.' : '';
+          
+          out += `Prompt:\n${promptText}${cameraAnchor}${cameraMove} ${desc.trim()}${physicsText.trim() ? physicsText + 'ambient detail behaves naturally.' : ''}${negFilterText}${dialogueLine}${audioText}\n\n`;
+        } else {
+          let dialogText = '';
+          if (shot.dialogueEnabled && shot.character && shot.dialogue) {
+            dialogText = ` Audio: ${shot.character} says: "${shot.dialogue}" (no subtitles).`;
+          }
+          let negFilterText = '';
+          if (shot.negativeFilter) {
+            negFilterText = ` [Negative: no background morphing, preserve structural environment integrity, lock depth coordinates]`;
+          }
+          
+          out += `${cameraAnchor}${cameraMove} ${desc.trim()}${physicsText.trim() ? physicsText + 'ambient detail behaves naturally.' : ''}${dialogText}${negFilterText}\n\n`;
+        }
+      });
+      
+      if (isOmni) {
+        out += `**Multi-Turn Refinement Protocol**\n`;
+        out += `To adjust lighting: "Omni, deepen the shadows on the brick wall in Shot 1 to make the chiaroscuro effect more drastic."\n`;
+        out += `To tune physics: "Increase the rate of the rainwater dripping from his trench coat in Shot 3."\n`;
+      }
+
+      const compiledText = out.trim();
+      document.getElementById('output-box').innerText = compiledText;
+      audit(compiledText);
+      saveState();
+    }
+
+    function audit(text) {
+      const list = document.getElementById('validator-list');
+      const checks = [
+        {
+          label: '3 Distinct Shots Configuration',
+          desc: 'Prompt includes Shot 1, Shot 2, and Shot 3 tags.',
+          status: currentShots.length === 3
+        },
+        {
+          label: 'Camera Anchor Tags Lock',
+          desc: 'Uses "[Shot Type] shot (thats where the camera is)" layout to anchor coordinate tracking.',
+          status: currentShots.every(s => s.type && s.type.length > 0)
+        },
+        {
+          label: 'Single-Axis Camera Constraints',
+          desc: 'Each shot must include exactly one intentional single-axis camera movement (static cameras are locked out).',
+          status: currentShots.every(s => {
+            const movement = s.movement.toLowerCase();
+            const count = (movement.match(/(push-in|tilt|pan|zoom|orbit|crane|tracking)/g) || []).length;
+            return count === 1;
+          })
+        },
+        {
+          label: 'Physics Engine Alignment',
+          desc: 'Token "realistic physics governing actions" is active in sequence for complex/fluid rendering.',
+          status: currentShots.some(s => s.physics)
+        },
+        {
+          label: 'Asset Continuity (@-Tag)',
+          desc: `Ensures character identity is retained across frames by utilizing ${currentAssetName} consistently.`,
+          status: currentShots.every(s => s.description.includes(currentAssetName) || s.description.includes('@'))
+        },
+        {
+          label: 'Technical Lexicon Audit',
+          desc: 'No AI boilerplate descriptors ("stunning", "4K", etc.) used. Directorial phrasing clean.',
+          status: !['photorealistic', 'stunning', '4k', 'ultra-detailed', 'beautiful'].some(word => text.toLowerCase().includes(word))
+        }
+      ];
+
+      list.innerHTML = checks.map(check => `
+        <div class="validator-item ${check.status ? 'pass' : 'fail'}">
+          <div class="validator-icon">${check.status ? '✓' : '✗'}</div>
+          <div class="validator-text">
+            <h4>${check.label}</h4>
+            <p>${check.desc}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Launch
+    window.onload = init;
+  </script>
+</body>
+</html>

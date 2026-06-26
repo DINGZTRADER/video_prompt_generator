@@ -1,0 +1,26 @@
+Live Stress Test
+Let’s pass a raw, simple subject through our newly minted system to see how it performs under strict token adherence.
+
+User Input:
+[Subject: A futuristic samurai explorer looking for water]
+
+Meta-Generator Output:
+Selected Archetype: Sci-Fi Neo-Western / Low-Angle Hero Cinematic
+Asset to Register: @SamuraiExplorer (Character asset: traditional ronin silhouette, weathered carbon-fiber armor, a straw rônin hat with integrated glowing neon HUD visor, sheathed plasma katana).
+
+Shot 1: The Establishing Shot
+
+Wide tracking shot (thats where the camera is). The camera executes a slow, smooth push-in along a dusty, cracked desert floor. In the center frame, @SamuraiExplorer walks slowly away from the lens toward a massive, rusted terraforming facility looming on the horizon. Harsh overhead midday sun casts sharp, pitch-black shadows directly beneath them. Realistic physics governing actions as wind whips dust and loose sand around their tattered textile cloak.
+
+Shot 2: The Detail / Tension Shot
+
+Close-up shot (thats where the camera is). The camera executes a slow, subtle tilt-up from a gloved hand to the helmet visor. @SamuraiExplorer stands motionless. The matte-black carbon fiber texture of their shoulder armor shows deep scratches and scuffs. The reflection on their neon blue HUD visor shows a flashing red water drop icon and scrolling geometric code. Soft, diffused ambient desert light glints off the visor's metallic rim.
+
+Shot 3: The Action / Resolution Shot
+
+Extreme low-angle static shot (thats where the camera is). The camera is positioned ground-level looking upward. @SamuraiExplorer drops heavily to one knee in front of a cracked pipe. Realistic physics governing actions as their armor shifts and a plume of red dust kicks up upon impact. They extend their arm, and a small stream of clear, glowing blue water begins to trickle from the pipe into a metallic canteen. Audio: Low mechanical hum, dripping water, clear metallic clink.
+
+Next Iteration Step
+Take a look at how the asset tags hold the character across the sequence.
+
+To refine this engine further: Do we need a dedicated "Negative Filter Bracket" appended to the end of each shot to ensure the model doesn't morph the background or add weird artifacting, or is the current directorial phrasing tight enough for your workflow?
